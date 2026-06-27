@@ -9,7 +9,7 @@ const roomRoutes = Router();
 roomRoutes.get("/", getAllRooms);
 roomRoutes.post("/", requireAuth, validate(createRoomSchema), createRoom);
 roomRoutes.get("/:id", getRoomById);
-roomRoutes.put("/:id", requireAuth, validate(updateRoomSchema), updateRoom);
+roomRoutes.put("/:id", validate(updateRoomSchema), updateRoom);
 roomRoutes.delete("/:id", requireAuth, deleteRoom);
 
 export default roomRoutes;
