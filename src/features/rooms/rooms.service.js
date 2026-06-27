@@ -14,20 +14,20 @@ export const getAllRoomsService = async () => {
       bookings: {
         where: {
           status: "ACTIVE",
-          endTime: { gte: now } 
+          endTime: { gte: now },
         },
         orderBy: { startTime: "asc" },
-        take: 1 
-      }
+        take: 1,
+      },
     },
     orderBy: { createdAt: "desc" },
   });
 
   return rooms.map((room) => {
-    let warna = "blue"; 
+    let warna = "blue";
 
     if (room.status === "MAINTENANCE") {
-      warna = "grey"; 
+      warna = "grey";
     } else {
       const bookingTerdekat = room.bookings[0];
 
@@ -37,8 +37,7 @@ export const getAllRoomsService = async () => {
 
         if (now >= start && now <= end) {
           warna = "red";
-        } 
-        else if (start - now <= 5 * 60 * 1000 && now < start) {
+        } else if (start - now <= 5 * 60 * 1000 && now < start) {
           warna = "yellow";
         }
       }
@@ -51,25 +50,79 @@ export const getAllRoomsService = async () => {
       status: room.status,
       displayColor: warna,
       createdAt: room.createdAt,
-      updatedAt: room.updatedAt
+      updatedAt: room.updatedAt,
     };
   });
+};
+
+export const getRoomByIdService = async (id) => {
+  const now = new Date();
+
+  const room = await prisma.room.findUnique({
+    where: { id },
+    include: {
+      bookings: {
+        where: {
+          status: "ACTIVE",
+          endTime: { gte: now },
+        },
+        select: {
+          id: true,
+          bookedByName: true,
+          startTime: true,
+          endTime: true,
+          status: true,
+        },
+        orderBy: {
+          startTime: "asc",
+        },
+      },
+    },
+  });
+
+  if (!room) return null;
+
+  let warna = "blue";
+  if (room.status === "MAINTENANCE") {
+    warna = "grey";
+  } else if (room.bookings.length > 0) {
+    const bookingTerdekat = room.bookings[0];
+    const start = new Date(bookingTerdekat.startTime);
+    const end = new Date(bookingTerdekat.endTime);
+
+    if (now >= start && now <= end) {
+      warna = "red";
+    } else if (start - now <= 5 * 60 * 1000 && now < start) {
+      warna = "yellow";
+    }
+  }
+
+  return {
+    id: room.id,
+    name: room.name,
+    deviceId: room.deviceId,
+    status: room.status,
+    displayColor: warna,
+    createdAt: room.createdAt,
+    updatedAt: room.updatedAt,
+    bookedSchedules: room.bookings,
+  };
 };
 
 export const updateRoomService = async (id, updateData) => {
   const existingRoom = await prisma.room.findUnique({ where: { id } });
   if (!existingRoom) throw new Error("Ruangan tidak ditemukan");
 
-//   if (updateData.deviceId) {
-//     const deviceUsed = await prisma.room.findFirst({
-//       where: {
-//         deviceId: updateData.deviceId,
-//         NOT: { id: id }, 
-//       },
-//     });
-//     if (deviceUsed)
-//       throw new Error("Device ID sudah digunakan oleh ruangan lain");
-//   }
+  //   if (updateData.deviceId) {
+  //     const deviceUsed = await prisma.room.findFirst({
+  //       where: {
+  //         deviceId: updateData.deviceId,
+  //         NOT: { id: id },
+  //       },
+  //     });
+  //     if (deviceUsed)
+  //       throw new Error("Device ID sudah digunakan oleh ruangan lain");
+  //   }
 
   return await prisma.room.update({
     where: { id },

@@ -1,4 +1,4 @@
-import { createRoomService, deleteRoomService, getAllRoomsService, updateRoomService } from "./rooms.service.js";
+import { createRoomService, deleteRoomService, getAllRoomsService, getRoomByIdService, updateRoomService } from "./rooms.service.js";
 
 export const createRoom = async (req, res) => {
   try {
@@ -23,6 +23,30 @@ export const getAllRooms = async (req, res) => {
     return res
       .status(500)
       .json({ status: "error", message: "Gagal mengambil data ruangan" });
+  }
+};
+
+export const getRoomById = async (req, res) => {
+  try {
+    const roomWithSchedules = await getRoomByIdService(req.params.id);
+    
+    if (!roomWithSchedules) {
+      return res.status(404).json({ 
+        status: "fail", 
+        message: "Ruangan tidak ditemukan" 
+      });
+    }
+
+    return res.status(200).json({ 
+      status: "success", 
+      data: roomWithSchedules 
+    });
+  } catch (error) {
+    console.error("Get Room By ID Error:", error);
+    return res.status(500).json({ 
+      status: "error", 
+      message: "Gagal mengambil rincian data dan jadwal ruangan" 
+    });
   }
 };
 
