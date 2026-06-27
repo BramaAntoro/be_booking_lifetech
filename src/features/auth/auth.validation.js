@@ -14,3 +14,12 @@ export const registerSchema = z.object({
     .min(6, "Password minimal harus memiliki 6 karakter")
     .max(255, "Password terlalu panjang"),
 });
+
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: "Email wajib diisi" })
+    .email("Format email tidak valid"),
+  password: z
+    .string({ required_error: "Password wajib diisi" })
+    .min(1, "Password tidak boleh kosong")
+});
