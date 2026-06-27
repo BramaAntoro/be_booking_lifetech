@@ -113,22 +113,43 @@ export const updateRoomService = async (id, updateData) => {
   const existingRoom = await prisma.room.findUnique({ where: { id } });
   if (!existingRoom) throw new Error("Ruangan tidak ditemukan");
 
-  //   if (updateData.deviceId) {
-  //     const deviceUsed = await prisma.room.findFirst({
-  //       where: {
-  //         deviceId: updateData.deviceId,
-  //         NOT: { id: id },
-  //       },
-  //     });
-  //     if (deviceUsed)
-  //       throw new Error("Device ID sudah digunakan oleh ruangan lain");
-  //   }
+  if (updateData.deviceId) {
+    const deviceUsed = await prisma.room.findFirst({
+      where: {
+        deviceId: updateData.deviceId,
+        NOT: { id: id },
+      },
+    });
+    if (deviceUsed)
+      throw new Error("Device ID sudah digunakan oleh ruangan lain");
+  }
+
+  if (updateData.status === "MAINTENANCE") {
+    const now = new Date();
+
+    const activeBookingExists = await prisma.booking.findFirst({
+      where: {
+        roomId: id,
+        status: "ACTIVE",
+        endTime: {
+          gte: now,
+        },
+      },
+    });
+
+    if (activeBookingExists) {
+      throw new Error(
+        "Gagal mengubah status! Masih ada jadwal booking yang aktif atau akan datang di ruangan ini",
+      );
+    }
+  }
 
   return await prisma.room.update({
     where: { id },
     data: updateData,
   });
 };
+
 
 export const deleteRoomService = async (id) => {
   const existingRoom = await prisma.room.findUnique({ where: { id } });
