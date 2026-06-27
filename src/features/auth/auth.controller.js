@@ -58,3 +58,18 @@ export const loginController = async (req, res) => {
     });
   }
 };
+
+export const logoutController = async (req, res) => {
+  try {
+    return res.status(200).json({
+      status: "success",
+      message: "Logout berhasil."
+    });
+  } catch (error) {
+    console.error("Logout Error Log:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Terjadi kesalahan internal pada server"
+    });
+  }
+};
