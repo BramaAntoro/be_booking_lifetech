@@ -5,3 +5,9 @@ export const createRoomService = async ({ name }) => {
     data: { name },
   });
 };
+
+export const getAllRoomsService = async () => {
+  return await prisma.room.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+};
