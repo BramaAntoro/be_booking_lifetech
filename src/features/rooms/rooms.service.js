@@ -56,7 +56,7 @@ export const getAllRoomsService = async () => {
 };
 
 export const getRoomByIdService = async (id) => {
-  const sekarang = new Date();
+  const now = new Date();
 
   const room = await prisma.room.findUnique({
     where: { id },
@@ -64,7 +64,7 @@ export const getRoomByIdService = async (id) => {
       bookings: {
         where: {
           status: "ACTIVE",
-          endTime: { gte: sekarang },
+          endTime: { gte: now },
         },
         select: {
           id: true,
@@ -90,9 +90,9 @@ export const getRoomByIdService = async (id) => {
     const start = new Date(bookingTerdekat.startTime);
     const end = new Date(bookingTerdekat.endTime);
 
-    if (sekarang >= start && sekarang <= end) {
+    if (now >= start && now <= end) {
       warna = "red";
-    } else if (start - sekarang <= 5 * 60 * 1000 && sekarang < start) {
+    } else if (start - now <= 5 * 60 * 1000 && now < start) {
       warna = "yellow";
     }
   }
