@@ -7,8 +7,52 @@ export const createRoomService = async ({ name }) => {
 };
 
 export const getAllRoomsService = async () => {
-  return await prisma.room.findMany({
+  const now = new Date();
+
+  const rooms = await prisma.room.findMany({
+    include: {
+      bookings: {
+        where: {
+          status: "ACTIVE",
+          endTime: { gte: now } 
+        },
+        orderBy: { startTime: "asc" },
+        take: 1 
+      }
+    },
     orderBy: { createdAt: "desc" },
+  });
+
+  return rooms.map((room) => {
+    let warna = "blue"; 
+
+    if (room.status === "MAINTENANCE") {
+      warna = "grey"; 
+    } else {
+      const bookingTerdekat = room.bookings[0];
+
+      if (bookingTerdekat) {
+        const start = new Date(bookingTerdekat.startTime);
+        const end = new Date(bookingTerdekat.endTime);
+
+        if (now >= start && now <= end) {
+          warna = "red";
+        } 
+        else if (start - now <= 5 * 60 * 1000 && now < start) {
+          warna = "yellow";
+        }
+      }
+    }
+
+    return {
+      id: room.id,
+      name: room.name,
+      deviceId: room.deviceId,
+      status: room.status,
+      displayColor: warna,
+      createdAt: room.createdAt,
+      updatedAt: room.updatedAt
+    };
   });
 };
 
