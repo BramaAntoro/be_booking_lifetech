@@ -6,7 +6,7 @@ import { requireAuth } from "../../middlewares/auth.middleware.js";
 
 const roomRoutes = Router();
 
-roomRoutes.get("/", requireAuth, getAllRooms);
+roomRoutes.get("/", getAllRooms);
 roomRoutes.post("/", requireAuth, validate(createRoomSchema), createRoom);
 roomRoutes.get("/:id", getRoomById);
 roomRoutes.put("/:id", requireAuth, validate(updateRoomSchema), updateRoom);
