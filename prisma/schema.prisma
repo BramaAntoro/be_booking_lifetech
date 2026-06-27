@@ -13,6 +13,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum RoomStatus {
+  AVAILABLE
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+}
+
 model User {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String   @db.VarChar(100)
@@ -28,12 +39,12 @@ model User {
 }
 
 model Room {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String   @db.VarChar(100)
-  deviceId  String?  @unique @map("device_id") @db.VarChar(255)
-  status    String   @default("available") @db.VarChar(20)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String     @db.VarChar(100)
+  deviceId  String?    @unique @map("device_id") @db.VarChar(255)
+  status    RoomStatus @default(AVAILABLE)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   bookings Booking[]
 
@@ -43,15 +54,15 @@ model Room {
 }
 
 model Booking {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String?  @map("user_id") @db.Uuid
-  roomId       String   @map("room_id") @db.Uuid
-  bookedByName String   @map("booked_by_name") @db.VarChar(100)
-  startTime    DateTime @map("start_time") @db.Timestamptz
-  endTime      DateTime @map("end_time") @db.Timestamptz
-  status       String   @default("active") @db.VarChar(20)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String?       @map("user_id") @db.Uuid
+  roomId       String        @map("room_id") @db.Uuid
+  bookedByName String        @map("booked_by_name") @db.VarChar(100)
+  startTime    DateTime      @map("start_time") @db.Timestamptz
+  endTime      DateTime      @map("end_time") @db.Timestamptz
+  status       BookingStatus @default(ACTIVE)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   room Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
