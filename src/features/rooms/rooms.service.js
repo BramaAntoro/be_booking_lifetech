@@ -32,3 +32,12 @@ export const updateRoomService = async (id, updateData) => {
     data: updateData,
   });
 };
+
+export const deleteRoomService = async (id) => {
+  const existingRoom = await prisma.room.findUnique({ where: { id } });
+  if (!existingRoom) throw new Error("Ruangan tidak ditemukan");
+
+  return await prisma.room.delete({
+    where: { id },
+  });
+};
