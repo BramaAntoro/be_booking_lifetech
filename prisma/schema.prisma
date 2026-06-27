@@ -10,32 +10,32 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name       String    @db.VarChar(100)
-  email      String    @unique @db.VarChar(150)
-  password   String    @db.VarChar(255)
-  role       String    @default("user") @db.VarChar(20)
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  
-  bookings   Booking[]
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(150)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  bookings Booking[]
 
   @@index([email])
-  @@map("users") 
+  @@map("users")
 }
 
 model Room {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String    @db.VarChar(100)
-  deviceId  String?   @unique @map("device_id") @db.VarChar(255)
-  status    String    @default("available") @db.VarChar(20)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  
-  bookings  Booking[]
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(100)
+  deviceId  String?  @unique @map("device_id") @db.VarChar(255)
+  status    String   @default("available") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  bookings Booking[]
 
   @@index([deviceId])
   @@index([status])
@@ -53,8 +53,8 @@ model Booking {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  room Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@index([roomId])
   @@index([userId])
